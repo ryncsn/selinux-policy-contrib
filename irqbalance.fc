@@ -1,3 +1,5 @@
+/etc/irqbalance\.policy\.d(/.*)?    gen_context(system_u:object_r:irqbalance_script_exec_t,s0)
+
 /etc/rc\.d/init\.d/irqbalance	--	gen_context(system_u:object_r:irqbalance_initrc_exec_t,s0)
 
 /usr/sbin/irqbalance	--	gen_context(system_u:object_r:irqbalance_exec_t,s0)

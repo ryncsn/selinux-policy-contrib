@@ -15,11 +15,18 @@ init_script_file(irqbalance_initrc_exec_t)
 type irqbalance_var_run_t;
 files_pid_file(irqbalance_var_run_t)
 
+type irqbalance_script_t;
+type irqbalance_script_exec_t;
+domain_type(irqbalance_script_t)
+domain_entry_file(irqbalance_script_t, irqbalance_script_exec_t)
+application_executable_file(irqbalance_script_exec_t)
+role system_r types irqbalance_script_t;
+
+
 ########################################
 #
 # Local policy
 #
-
 allow irqbalance_t self:capability { setpcap net_admin };
 dontaudit irqbalance_t self:capability sys_tty_config;
 allow irqbalance_t self:process { getcap getsched setcap signal_perms };
@@ -32,6 +39,9 @@ kernel_read_network_state(irqbalance_t)
 kernel_read_system_state(irqbalance_t)
 kernel_read_kernel_sysctls(irqbalance_t)
 kernel_rw_irq_sysctls(irqbalance_t)
+
+corecmd_exec_shell(irqbalance_t)
+auth_read_passwd(irqbalance_t)
 
 dev_read_sysfs(irqbalance_t)
 
@@ -57,4 +67,25 @@ optional_policy(`
 
 optional_policy(`
 	udev_read_db(irqbalance_t)
+')
+
+########################################
+#
+# Irqbalance custom policy script local policy
+#
+domtrans_pattern(irqbalance_t, irqbalance_script_exec_t, irqbalance_script_t)
+
+allow irqbalance_t irqbalance_script_exec_t:dir search_dir_perms;
+allow irqbalance_t irqbalance_script_exec_t:dir read_file_perms;
+allow irqbalance_t irqbalance_script_exec_t:file ioctl;
+allow irqbalance_t irqbalance_script_t:process signal;
+
+init_domtrans_script(irqbalance_script_t)
+
+optional_policy(`
+    mta_send_mail(irqbalance_script_t)
+')
+
+optional_policy(`
+    unconfined_domain(irqbalance_script_t)
 ')
